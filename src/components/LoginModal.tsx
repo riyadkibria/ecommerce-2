@@ -24,7 +24,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       onClose(); // close modal on success
-    } catch (err: any) {
+  } catch (err) {
+  const error = err as FirebaseError;
+
       if (err.code === "auth/user-not-found") {
         setError("User not found.");
       } else if (err.code === "auth/wrong-password") {
