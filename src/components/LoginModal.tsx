@@ -5,12 +5,6 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, si
 import { app } from "@/lib/firebase";
 import { loginWithEmail, signupWithEmail, loginWithGoogle } from "@/lib/auth";
 
-if (isLoginMode) {
-  await loginWithEmail(email, password);
-} else {
-  await signupWithEmail(email, password);
-}
-await loginWithGoogle();
 
 
 // Custom SVG icons
@@ -88,43 +82,45 @@ function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setError("");
   };
 
-  const handleAuth = async () => {
-    if (!email || !password) {
-      setError("Please fill in all fields");
-      return;
-    }
+import { loginWithEmail, signupWithEmail, loginWithGoogle } from "@/lib/auth"; // ✅ Import from auth.ts
 
-    if (!isLoginMode && password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+const handleAuth = async () => {
+  if (!email || !password) {
+    setError("Please fill in all fields");
+    return;
+  }
 
-    if (!isLoginMode && password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
+  if (!isLoginMode && password !== confirmPassword) {
+    setError("Passwords do not match");
+    return;
+  }
 
-    setLoading(true);
-    setError("");
-    const auth = getAuth(app);
-    
-    try {
-      if (isLoginMode) {
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-      }
-      handleClose();
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message.replace("Firebase: ", ""));
-      } else {
-        setError(`${isLoginMode ? "Login" : "Registration"} failed. Please try again.`);
-      }
-    } finally {
-      setLoading(false);
+  if (!isLoginMode && password.length < 6) {
+    setError("Password must be at least 6 characters");
+    return;
+  }
+
+  setLoading(true);
+  setError("");
+
+  try {
+    if (isLoginMode) {
+      await loginWithEmail(email, password); // ✅ Login
+    } else {
+      await signupWithEmail(email, password); // ✅ Signup
     }
-  };
+    handleClose();
+  } catch (err) {
+    if (err instanceof Error) {
+      setError(err.message.replace("Firebase: ", ""));
+    } else {
+      setError(`${isLoginMode ? "Login" : "Registration"} failed. Please try again.`);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleGoogleAuth = async () => {
     setGoogleLoading(true);
