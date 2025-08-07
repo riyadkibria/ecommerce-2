@@ -7,6 +7,7 @@ import SearchBar from "@/components/SearchBar";
 import NavIcons from "@/components/NavIcons";
 import CartModal from "@/components/CartModal";
 import LoginModal from "@/components/LoginModal";
+import { useAuth } from "@/hooks/useAuth";  // <== ADD THIS LINE
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
