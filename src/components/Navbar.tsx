@@ -7,7 +7,7 @@ import SearchBar from "@/components/SearchBar";
 import NavIcons from "@/components/NavIcons";
 import CartModal from "@/components/CartModal";
 import LoginModal from "@/components/LoginModal";
-import { useAuth } from "@/hooks/useAuth";  // <== ADD THIS LINE
+import { useAuth } from "@/hooks/useAuth";  // Make sure this path is correct
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,9 +19,12 @@ const Navbar = () => {
 
   const { user, loading, logout } = useAuth();
 
+  // Fix: cleanup function should NOT return a string, so use curly braces with no return
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "unset";
-    return () => (document.body.style.overflow = "unset");
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [menuOpen]);
 
   useEffect(() => {
@@ -39,7 +42,7 @@ const Navbar = () => {
     return () => {
       if (welcomeTimer) clearTimeout(welcomeTimer);
     };
-  }, [user]);
+  }, [user, showWelcome, welcomeTimer]);
 
   const handleLogout = async () => {
     try {
@@ -101,7 +104,10 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-2">
               <ul className="flex items-center space-x-2">
                 <li>
-                  <Link href="/products" className="px-5 py-2.5 text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg transition-all duration-300 font-medium tracking-wide border border-transparent hover:border-neutral-200">
+                  <Link
+                    href="/products"
+                    className="px-5 py-2.5 text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg transition-all duration-300 font-medium tracking-wide border border-transparent hover:border-neutral-200"
+                  >
                     Products
                   </Link>
                 </li>
