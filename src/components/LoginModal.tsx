@@ -2,7 +2,7 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect, FC } from "react";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { loginWithEmail, signupWithEmail, loginWithGoogle } from "@/lib/auth";
 import { app } from "@/lib/firebase";
 
@@ -11,14 +11,13 @@ const LoginModal: FC = () => {
   const [password, setPassword] = useState("");
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [error, setError] = useState("");
-  const [user, setUser] = useState<User | null>(null);
-  const [isOpen, setIsOpen] = useState(false); // Modal control
+  const [isOpen, setIsOpen] = useState(false);
 
   const auth = getAuth(app);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, () => {
+      // User state change handling (if needed in future)
     });
 
     return () => unsubscribe();
@@ -37,15 +36,20 @@ const LoginModal: FC = () => {
         await signupWithEmail(email, password);
       }
       setError("");
-      setIsOpen(false); // Close modal after success
-    } catch (err: any) {
-      setError(err.message);
+      setIsOpen(false);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An unknown error occurred";
+      setError(errorMessage);
     }
   };
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)} className="px-4 py-2 bg-blue-500 text-white rounded">
+      <button
+        onClick={() => setIsOpen(true)}
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+      >
         {isLoginMode ? "Login" : "Sign Up"}
       </button>
 
@@ -75,7 +79,10 @@ const LoginModal: FC = () => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
                     {isLoginMode ? "Login" : "Sign Up"}
                   </Dialog.Title>
 
@@ -86,14 +93,18 @@ const LoginModal: FC = () => {
                       type="email"
                       placeholder="Email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setEmail(e.target.value)
+                      }
                       className="w-full mb-3 px-3 py-2 border rounded"
                     />
                     <input
                       type="password"
                       placeholder="Password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setPassword(e.target.value)
+                      }
                       className="w-full mb-3 px-3 py-2 border rounded"
                     />
                     <button
