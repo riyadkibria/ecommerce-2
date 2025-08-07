@@ -1,30 +1,34 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+// src/hooks/useAuth.tsx
+"use client";
+
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
 import { app } from "@/lib/firebase";
 
-interface AuthContextType {
+interface AuthContextProps {
   user: User | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const auth = getAuth(app);
+
   useEffect(() => {
-    const auth = getAuth(app);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
       setLoading(false);
     });
+
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
   const logout = async () => {
-    const auth = getAuth(app);
     await signOut(auth);
   };
 
@@ -35,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextProps => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
