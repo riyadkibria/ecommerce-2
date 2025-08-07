@@ -3,6 +3,15 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect, FC } from "react";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { app } from "@/lib/firebase";
+import { loginWithEmail, signupWithEmail, loginWithGoogle } from "@/lib/auth";
+
+if (isLoginMode) {
+  await loginWithEmail(email, password);
+} else {
+  await signupWithEmail(email, password);
+}
+await loginWithGoogle();
+
 
 // Custom SVG icons
 const XMarkIcon = ({ className }: { className?: string }) => (
