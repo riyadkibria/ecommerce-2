@@ -2,7 +2,12 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { app } from "@/lib/firebase";
 import { FirebaseError } from "firebase/app";
 
@@ -25,12 +30,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       onClose(); // close modal on success
-  } catch (err) {
-  const error = err as FirebaseError;
+    } catch (err) {
+      const error = err as FirebaseError;
 
-      if (err.code === "auth/user-not-found") {
+      if (error.code === "auth/user-not-found") {
         setError("User not found.");
-      } else if (err.code === "auth/wrong-password") {
+      } else if (error.code === "auth/wrong-password") {
         setError("Wrong password.");
       } else {
         setError("Login failed.");
@@ -49,7 +54,13 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       await signInWithPopup(auth, provider);
       onClose(); // close modal on success
     } catch (err) {
-      setError("Google login failed.");
+      const error = err as FirebaseError;
+
+      if (error.code === "auth/popup-closed-by-user") {
+        setError("Google popup closed.");
+      } else {
+        setError("Google login failed.");
+      }
     } finally {
       setLoading(false);
     }
