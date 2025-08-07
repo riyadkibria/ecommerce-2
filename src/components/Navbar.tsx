@@ -7,7 +7,6 @@ import SearchBar from "@/components/SearchBar";
 import NavIcons from "@/components/NavIcons";
 import CartModal from "@/components/CartModal";
 import LoginModal from "@/components/LoginModal";
-import useAuth from "@/hooks/useAuth"; // 🔄 Changed import from LoginModal to dedicated auth hook
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
