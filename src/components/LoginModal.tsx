@@ -1,9 +1,12 @@
 "use client";
-import { loginWithEmail, signupWithEmail, loginWithGoogle } from "@/lib/auth";
+
+import { useState, useEffect, Fragment, FC } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState, useEffect, FC } from "react";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from "firebase/auth";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+
+import { loginWithEmail, signupWithEmail, loginWithGoogle } from "@/lib/auth";
 import { app } from "@/lib/firebase";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 
 
 
