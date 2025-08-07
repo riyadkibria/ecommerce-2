@@ -104,11 +104,6 @@ const handleAuth = async () => {
   setError("");
 
   try {
-    if (isLoginMode) {
-      await loginWithEmail(email, password); // ✅ Login
-    } else {
-      await signupWithEmail(email, password); // ✅ Signup
-    }
     handleClose();
   } catch (err) {
     if (err instanceof Error) {
