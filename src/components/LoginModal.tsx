@@ -187,7 +187,7 @@ export default function LoginModal({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !showForgotPassword) {
-      handleLogin(e as any);
+      handleLogin(e as React.FormEvent);
     }
   };
 
@@ -260,7 +260,7 @@ export default function LoginModal({
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Check Your Email</h3>
                     <p className="text-gray-600 mb-6">
-                      We've sent a password reset link to <strong>{email}</strong>
+                      We&apos;ve sent a password reset link to <strong>{email}</strong>
                     </p>
                     <button
                       onClick={() => {
@@ -478,7 +478,7 @@ export default function LoginModal({
               {!showForgotPassword && !resetEmailSent && onSwitchToSignup && (
                 <div className="px-8 py-6 bg-gray-50 border-t border-gray-100">
                   <p className="text-center text-sm text-gray-600">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <button
                       onClick={onSwitchToSignup}
                       className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
