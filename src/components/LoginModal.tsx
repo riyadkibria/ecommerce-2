@@ -20,8 +20,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,8 +32,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     try {
       if (isSignup) {
         await signupWithEmail(email, password);
-        // After signup, notify user to login manually
-        setMessage("Signup successful! Please log in now.");
+        setMessage(
+          "Signup successful! A verification email has been sent. Please verify your email before logging in."
+        );
         setIsSignup(false);
       } else {
         await loginWithEmail(email, password);
@@ -53,6 +54,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
   async function handleGoogleLogin() {
     setError(null);
+    setMessage(null);
     setLoading(true);
     try {
       await loginWithGoogle();
