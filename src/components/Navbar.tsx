@@ -14,12 +14,9 @@ const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [welcomeTimer, setWelcomeTimer] = useState<NodeJS.Timeout | null>(null);
 
   const { user, loading, logout } = useAuth();
 
-  // Fix: cleanup function should NOT return a string, so use curly braces with no return
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "unset";
     return () => {
@@ -27,30 +24,10 @@ const Navbar = () => {
     };
   }, [menuOpen]);
 
-  useEffect(() => {
-    if (user && !showWelcome) {
-      setShowWelcome(true);
-      if (welcomeTimer) clearTimeout(welcomeTimer);
-      const timer = setTimeout(() => setShowWelcome(false), 5000);
-      setWelcomeTimer(timer);
-    }
-    if (!user && showWelcome) {
-      setShowWelcome(false);
-      if (welcomeTimer) clearTimeout(welcomeTimer);
-      setWelcomeTimer(null);
-    }
-    return () => {
-      if (welcomeTimer) clearTimeout(welcomeTimer);
-    };
-  }, [user, showWelcome, welcomeTimer]);
-
   const handleLogout = async () => {
     try {
       await logout();
-      setShowWelcome(false);
       setMenuOpen(false);
-      if (welcomeTimer) clearTimeout(welcomeTimer);
-      setWelcomeTimer(null);
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -69,24 +46,6 @@ const Navbar = () => {
 
   return (
     <>
-      {showWelcome && user && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-2 duration-500">
-          <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg border border-green-400">
-            <div className="flex items-center gap-3">
-              <span className="text-lg">🎉</span>
-              <span className="font-medium">Welcome back, {getUserDisplayName()}!</span>
-              <button
-                onClick={() => setShowWelcome(false)}
-                className="ml-2 text-green-100 hover:text-white hover:bg-green-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-all duration-200"
-                aria-label="Close welcome message"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <nav className="w-full fixed top-0 left-0 z-40 bg-white/98 backdrop-blur-2xl shadow-sm border-b border-neutral-100/80">
         <div className="max-w-7xl mx-auto px-6 sm:px-8">
           <div className="flex items-center justify-between h-18">
