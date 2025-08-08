@@ -2,34 +2,21 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useRef, useEffect } from "react";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  sendPasswordResetEmail,
-  AuthError,
-} from "firebase/auth";
-import { app } from "@/lib/firebase";
-import { FirebaseError } from "firebase/app";
+import { authService, ValidationErrors, LoginCredentials } from "@/lib/auth";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignup?: () => void;
-}
-
-interface ValidationErrors {
-  email?: string;
-  password?: string;
+  onLoginSuccess?: () => void;
 }
 
 export default function LoginModal({ 
   isOpen, 
   onClose, 
-  onSwitchToSignup 
+  onSwitchToSignup,
+  onLoginSuccess
 }: LoginModalProps) {
-  const auth = getAuth(app);
   const emailRef = useRef<HTMLInputElement>(null);
   
   // Form state
@@ -62,6 +49,15 @@ export default function LoginModal({
     }
   }, [isOpen]);
 
+  // Load remembered email on component mount
+  useEffect(() => {
+    const rememberedEmail = authService.getRememberedEmail();
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
   const resetForm = () => {
     setEmail("");
     setPassword("");
@@ -73,67 +69,27 @@ export default function LoginModal({
     setGoogleLoading(false);
   };
 
-  const validateForm = (): boolean => {
-    const errors: ValidationErrors = {};
-    
-    // Email validation
-    if (!email) {
-      errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.email = "Please enter a valid email address";
-    }
-    
-    // Password validation
-    if (!showForgotPassword && !password) {
-      errors.password = "Password is required";
-    } else if (!showForgotPassword && password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
-    }
-    
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const getFirebaseErrorMessage = (errorCode: string): string => {
-    const errorMessages: Record<string, string> = {
-      "auth/user-not-found": "No account found with this email address",
-      "auth/wrong-password": "Incorrect password. Please try again",
-      "auth/invalid-email": "Please enter a valid email address",
-      "auth/user-disabled": "This account has been disabled",
-      "auth/too-many-requests": "Too many failed attempts. Please try again later",
-      "auth/network-request-failed": "Network error. Please check your connection",
-      "auth/popup-closed-by-user": "Sign-in was cancelled",
-      "auth/popup-blocked": "Pop-up was blocked. Please allow pop-ups and try again",
-      "auth/cancelled-popup-request": "Only one pop-up request is allowed at a time",
-      "auth/operation-not-allowed": "Google sign-in is not enabled",
-      "auth/invalid-credential": "Invalid credentials. Please check your email and password",
-    };
-    
-    return errorMessages[errorCode] || "An unexpected error occurred. Please try again";
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    const credentials: LoginCredentials = { email, password, rememberMe };
+    const validationResult = authService.validateLoginForm(credentials);
+    
+    if (Object.keys(validationResult).length > 0) {
+      setValidationErrors(validationResult);
+      return;
+    }
     
     setLoading(true);
     setError("");
+    setValidationErrors({});
 
     try {
-      const credential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // Handle remember me functionality
-      if (rememberMe) {
-        localStorage.setItem('rememberedEmail', email);
-      } else {
-        localStorage.removeItem('rememberedEmail');
-      }
-      
+      await authService.signInWithEmail(credentials);
+      onLoginSuccess?.();
       onClose();
     } catch (err) {
-      const error = err as FirebaseError;
-      setError(getFirebaseErrorMessage(error.code));
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -144,15 +100,11 @@ export default function LoginModal({
     setError("");
 
     try {
-      const provider = new GoogleAuthProvider();
-      provider.addScope('email');
-      provider.addScope('profile');
-      
-      const result = await signInWithPopup(auth, provider);
+      await authService.signInWithGoogle();
+      onLoginSuccess?.();
       onClose();
     } catch (err) {
-      const error = err as FirebaseError;
-      setError(getFirebaseErrorMessage(error.code));
+      setError((err as Error).message);
     } finally {
       setGoogleLoading(false);
     }
@@ -161,25 +113,22 @@ export default function LoginModal({
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email) {
-      setValidationErrors({ email: "Please enter your email address" });
-      return;
-    }
+    const validationResult = authService.validateResetEmail(email);
     
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setValidationErrors({ email: "Please enter a valid email address" });
+    if (Object.keys(validationResult).length > 0) {
+      setValidationErrors(validationResult);
       return;
     }
 
     setLoading(true);
     setError("");
+    setValidationErrors({});
 
     try {
-      await sendPasswordResetEmail(auth, email);
+      await authService.sendPasswordReset(email);
       setResetEmailSent(true);
     } catch (err) {
-      const error = err as FirebaseError;
-      setError(getFirebaseErrorMessage(error.code));
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -191,14 +140,11 @@ export default function LoginModal({
     }
   };
 
-  // Load remembered email on component mount
-  useEffect(() => {
-    const rememberedEmail = localStorage.getItem('rememberedEmail');
-    if (rememberedEmail) {
-      setEmail(rememberedEmail);
-      setRememberMe(true);
+  const clearFieldError = (field: keyof ValidationErrors) => {
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({ ...prev, [field]: undefined }));
     }
-  }, []);
+  };
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -236,6 +182,7 @@ export default function LoginModal({
                     onClick={onClose}
                     className="text-gray-400 hover:text-gray-600 transition-colors p-1"
                     disabled={loading || googleLoading}
+                    aria-label="Close modal"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -300,9 +247,7 @@ export default function LoginModal({
                           value={email}
                           onChange={(e) => {
                             setEmail(e.target.value);
-                            if (validationErrors.email) {
-                              setValidationErrors(prev => ({ ...prev, email: undefined }));
-                            }
+                            clearFieldError('email');
                           }}
                           onKeyDown={handleKeyDown}
                           className={`w-full px-4 py-3 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
@@ -338,9 +283,7 @@ export default function LoginModal({
                             value={password}
                             onChange={(e) => {
                               setPassword(e.target.value);
-                              if (validationErrors.password) {
-                                setValidationErrors(prev => ({ ...prev, password: undefined }));
-                              }
+                              clearFieldError('password');
                             }}
                             onKeyDown={handleKeyDown}
                             className={`w-full px-4 py-3 pr-12 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
@@ -356,6 +299,7 @@ export default function LoginModal({
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                             disabled={loading || googleLoading}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
                           >
                             {showPassword ? (
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -462,37 +406,4 @@ export default function LoginModal({
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                              </svg>
-                              Continue with Google
-                            </>
-                          )}
-                        </button>
-                      </>
-                    )}
-                  </form>
-                )}
-              </div>
-
-              {/* Footer */}
-              {!showForgotPassword && !resetEmailSent && onSwitchToSignup && (
-                <div className="px-8 py-6 bg-gray-50 border-t border-gray-100">
-                  <p className="text-center text-sm text-gray-600">
-                    Don&apos;t have an account?{" "}
-                    <button
-                      onClick={onSwitchToSignup}
-                      className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                      disabled={loading || googleLoading}
-                    >
-                      Sign up
-                    </button>
-                  </p>
-                </div>
-              )}
-            </Dialog.Panel>
-          </Transition.Child>
-        </div>
-      </Dialog>
-    </Transition>
-  );
-}
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56
