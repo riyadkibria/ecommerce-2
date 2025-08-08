@@ -27,7 +27,6 @@ export default function SimilarProducts({ products }: { products: StoryblokProdu
                image={imageUrl}
               slug={product.slug}
 />
-            />
           );
         })}
       </div>
