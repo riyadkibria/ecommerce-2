@@ -7,6 +7,7 @@ import {
   loginWithEmail,
   signupWithEmail,
   loginWithGoogle,
+  sendResetEmail, // Import the reset email function
 } from "@/lib/auth";
 
 export interface LoginModalProps {
@@ -17,13 +18,14 @@ export interface LoginModalProps {
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   const [isSignup, setIsSignup] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Control message shown only once after signup
+  // Control message shown only once after signup or reset
   const [showMessageOnce, setShowMessageOnce] = useState(false);
 
   useEffect(() => {
@@ -44,7 +46,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     setLoading(true);
 
     try {
-      if (isSignup) {
+      if (isResetPassword) {
+        // Password reset flow
+        await sendResetEmail(email);
+        setMessage("Check your email for the password reset link.");
+        setShowMessageOnce(true);
+      } else if (isSignup) {
+        // Signup flow
         await signupWithEmail(email, password);
         setMessage(
           "Signup successful! A verification email has been sent. Please verify your email before logging in."
@@ -52,6 +60,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         setShowMessageOnce(true);
         setIsSignup(false);
       } else {
+        // Login flow
         await loginWithEmail(email, password);
         onLoginSuccess?.();
         onClose();
@@ -116,7 +125,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               <Dialog.Panel className={styles.dialogPanel}>
 
                 <Dialog.Title className={styles.dialogTitle}>
-                  {isSignup ? "Sign Up" : "Log In"}
+                  {isResetPassword
+                    ? "Reset Password"
+                    : isSignup
+                    ? "Sign Up"
+                    : "Log In"}
                 </Dialog.Title>
 
                 <form onSubmit={handleSubmit} className={styles.form}>
@@ -128,14 +141,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     required
                     className={styles.input}
                   />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className={styles.input}
-                  />
+                  {!isResetPassword && (
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className={styles.input}
+                    />
+                  )}
+
                   {error && <p className={styles.error}>{error}</p>}
                   {message && <p className={styles.message}>{message}</p>}
 
@@ -144,32 +160,80 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     disabled={loading}
                     className={styles.submitButton}
                   >
-                    {loading ? "Please wait..." : isSignup ? "Sign Up" : "Log In"}
+                    {loading
+                      ? "Please wait..."
+                      : isResetPassword
+                      ? "Send Reset Link"
+                      : isSignup
+                      ? "Sign Up"
+                      : "Log In"}
                   </button>
                 </form>
 
-                <button
-                  onClick={handleGoogleLogin}
-                  disabled={loading}
-                  className={styles.googleButton}
-                >
-                  <img src="/google-icon.svg" alt="Google" className={styles.googleIcon} />
-                  Continue with Google
-                </button>
+                {!isResetPassword && (
+                  <>
+                    <button
+                      onClick={handleGoogleLogin}
+                      disabled={loading}
+                      className={styles.googleButton}
+                    >
+                      <img
+                        src="/google-icon.svg"
+                        alt="Google"
+                        className={styles.googleIcon}
+                      />
+                      Continue with Google
+                    </button>
 
-                <p className={styles.switchText}>
-                  {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-                  <button
-                    className={styles.switchButton}
-                    onClick={() => {
-                      setError(null);
-                      setMessage(null);
-                      setIsSignup(!isSignup);
-                    }}
-                  >
-                    {isSignup ? "Log In" : "Sign Up"}
-                  </button>
-                </p>
+                    <p className={styles.switchText}>
+                      {isSignup
+                        ? "Already have an account?"
+                        : "Don't have an account?"}{" "}
+                      <button
+                        className={styles.switchButton}
+                        onClick={() => {
+                          setError(null);
+                          setMessage(null);
+                          setIsSignup(!isSignup);
+                        }}
+                      >
+                        {isSignup ? "Log In" : "Sign Up"}
+                      </button>
+                    </p>
+
+                    {!isSignup && (
+                      <p className={styles.switchText}>
+                        <button
+                          type="button"
+                          className={styles.switchButton}
+                          onClick={() => {
+                            setError(null);
+                            setMessage(null);
+                            setIsResetPassword(true);
+                          }}
+                        >
+                          Forgot password?
+                        </button>
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {isResetPassword && (
+                  <p className={styles.switchText}>
+                    <button
+                      type="button"
+                      className={styles.switchButton}
+                      onClick={() => {
+                        setError(null);
+                        setMessage(null);
+                        setIsResetPassword(false);
+                      }}
+                    >
+                      Back to {isSignup ? "Sign Up" : "Login"}
+                    </button>
+                  </p>
+                )}
 
               </Dialog.Panel>
             </Transition.Child>
