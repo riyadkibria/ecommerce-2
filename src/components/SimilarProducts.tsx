@@ -21,11 +21,12 @@ export default function SimilarProducts({ products }: { products: StoryblokProdu
 
           return (
             <ProductCard
-              key={product.slug}
-              name={product.content.name ?? "Unnamed Product"}
-              price={product.content.price ?? "0"}
-              image={imageUrl}
+               key={product.slug}
+               name={product.content.name ?? "Unnamed Product"}
+               price={Number(product.content.price) || 0}
+               image={imageUrl}
               slug={product.slug}
+/>
             />
           );
         })}
