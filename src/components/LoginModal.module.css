@@ -1,205 +1,167 @@
-.dialogWrapper {
-  position: relative;
-  z-index: 10;
+"use client";
+
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment, useState } from "react";
+import styles from "./LoginModal.module.css";
+import {
+  loginWithEmail,
+  signupWithEmail,
+  loginWithGoogle,
+} from "@/lib/auth";
+
+export interface LoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onLoginSuccess?: () => void;
 }
 
-.backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.25);
-}
+export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
+  const [isSignup, setIsSignup] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-.container {
-  position: fixed;
-  inset: 0;
-  overflow-y: auto;
-}
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setMessage(null);
+    setLoading(true);
 
-.flexCenter {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  text-align: center;
-}
+    try {
+      if (isSignup) {
+        await signupWithEmail(email, password);
+        setMessage(
+          "Signup successful! A verification email has been sent. Please verify your email before logging in."
+        );
+        setIsSignup(false);
+      } else {
+        await loginWithEmail(email, password);
+        onLoginSuccess?.();
+        onClose();
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to authenticate");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
-.dialogPanel {
-  width: 100%;
-  max-width: 28rem; /* 448px */
-  transform-origin: center;
-  overflow: hidden;
-  border-radius: 1rem; /* 16px */
-  background-color: white;
-  padding: 1.5rem 1.5rem 1.5rem 1.5rem;
-  text-align: left;
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
-  transition-property: all;
-  transition-duration: 300ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
+  async function handleGoogleLogin() {
+    setError(null);
+    setMessage(null);
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+      onLoginSuccess?.();
+      onClose();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Google login failed");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
-.dialogTitle {
-  font-size: 1.125rem; /* 18px */
-  font-weight: 500;
-  color: #111827; /* gray-900 */
-  line-height: 1.25rem;
-}
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className={styles.dialogWrapper} onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter={styles.transitionEnter}
+          enterFrom={styles.transitionEnterFrom}
+          enterTo={styles.transitionEnterTo}
+          leave={styles.transitionLeave}
+          leaveFrom={styles.transitionLeaveFrom}
+          leaveTo={styles.transitionLeaveTo}
+        >
+          <div className={styles.backdrop} />
+        </Transition.Child>
 
-.form {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+        <div className={styles.container}>
+          <div className={styles.flexCenter}>
 
-.input {
-  width: 100%;
-  border: 1px solid #D1D5DB; /* gray-300 */
-  border-radius: 0.375rem; /* 6px */
-  padding: 0.5rem 0.75rem;
-  outline: none;
-  transition: box-shadow 0.2s ease;
-}
+            <Transition.Child
+              as={Fragment}
+              enter={styles.scaleEnter}
+              enterFrom={styles.scaleEnterFrom}
+              enterTo={styles.scaleEnterTo}
+              leave={styles.scaleLeave}
+              leaveFrom={styles.scaleLeaveFrom}
+              leaveTo={styles.scaleLeaveTo}
+            >
+              <Dialog.Panel className={styles.dialogPanel}>
 
-.input:focus {
-  box-shadow: 0 0 0 2px #3B82F6; /* blue-500 */
-  border-color: #3B82F6;
-}
+                <Dialog.Title className={styles.dialogTitle}>
+                  {isSignup ? "Sign Up" : "Log In"}
+                </Dialog.Title>
 
-.error {
-  color: #DC2626; /* red-600 */
-}
+                <form onSubmit={handleSubmit} className={styles.form}>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className={styles.input}
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className={styles.input}
+                  />
+                  {error && <p className={styles.error}>{error}</p>}
+                  {message && <p className={styles.message}>{message}</p>}
 
-.submitButton {
-  width: 100%;
-  background-color: #2563EB; /* blue-600 */
-  color: white;
-  padding: 0.5rem 0;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.2s ease;
-}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={styles.submitButton}
+                  >
+                    {loading ? "Please wait..." : isSignup ? "Sign Up" : "Log In"}
+                  </button>
+                </form>
 
-.submitButton:hover:not(:disabled) {
-  background-color: #1D4ED8; /* blue-700 */
-}
+                <button
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                  className={styles.googleButton}
+                >
+                  <img src="/google-icon.svg" alt="Google" className={styles.googleIcon} />
+                  Continue with Google
+                </button>
 
-.submitButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+                <p className={styles.switchText}>
+                  {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
+                  <button
+                    className={styles.switchButton}
+                    onClick={() => {
+                      setError(null);
+                      setMessage(null);
+                      setIsSignup(!isSignup);
+                    }}
+                  >
+                    {isSignup ? "Log In" : "Sign Up"}
+                  </button>
+                </p>
 
-.googleButton {
-  margin-top: 1rem;
-  width: 100%;
-  border: 1px solid #D1D5DB; /* gray-300 */
-  border-radius: 0.375rem;
-  padding: 0.5rem 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  background-color: white;
-  transition: background-color 0.2s ease;
-  font-weight: 600;
-}
+              </Dialog.Panel>
+            </Transition.Child>
 
-.googleButton:hover:not(:disabled) {
-  background-color: #F3F4F6; /* gray-100 */
-}
-
-.googleButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.googleIcon {
-  width: 1.25rem; /* 20px */
-  height: 1.25rem;
-}
-
-.switchText {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.875rem; /* 14px */
-  color: #4B5563; /* gray-600 */
-}
-
-.switchButton {
-  color: #2563EB; /* blue-600 */
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-weight: 600;
-  text-decoration: underline;
-}
-
-.switchButton:hover {
-  color: #1D4ED8; /* blue-700 */
-}
-
-/* Transition classes for Headless UI */
-.transitionEnter {
-  transition-property: opacity;
-  transition-duration: 300ms;
-  transition-timing-function: ease-out;
-}
-
-.transitionEnterFrom {
-  opacity: 0;
-}
-
-.transitionEnterTo {
-  opacity: 1;
-}
-
-.transitionLeave {
-  transition-property: opacity;
-  transition-duration: 200ms;
-  transition-timing-function: ease-in;
-}
-
-.transitionLeaveFrom {
-  opacity: 1;
-}
-
-.transitionLeaveTo {
-  opacity: 0;
-}
-
-.scaleEnter {
-  transition-property: opacity, transform;
-  transition-duration: 300ms;
-  transition-timing-function: ease-out;
-}
-
-.scaleEnterFrom {
-  opacity: 0;
-  transform: scale(0.95);
-}
-
-.scaleEnterTo {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.scaleLeave {
-  transition-property: opacity, transform;
-  transition-duration: 200ms;
-  transition-timing-function: ease-in;
-}
-
-.scaleLeaveFrom {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.scaleLeaveTo {
-  opacity: 0;
-  transform: scale(0.95);
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
 }
