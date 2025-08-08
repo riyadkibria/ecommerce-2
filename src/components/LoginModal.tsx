@@ -3,7 +3,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import { authService, ValidationErrors, LoginCredentials } from "@/lib/auth";
-import { GoogleAuthProvider } from "firebase/auth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -11,8 +10,6 @@ interface LoginModalProps {
   onSwitchToSignup?: () => void;
   onLoginSuccess?: () => void;
 }
-
-const googleProvider = new GoogleAuthProvider();
 
 export default function LoginModal({
   isOpen,
@@ -98,19 +95,14 @@ export default function LoginModal({
     }
   };
 
-  // Use useCallback to stabilize function reference
   const handleGoogleLogin = useCallback(async () => {
     if (googleLoading) return; // prevent multiple clicks
     setGoogleLoading(true);
     setError("");
 
     try {
-      // Use authService's signInWithGoogle, but pass the stable provider
-      // Update your authService.signInWithGoogle to accept a provider parameter if needed,
-      // or create signInWithGoogle inside this component with stable provider:
-      
-      // Directly using Firebase auth here to control provider instance:
-      const user = await authService.signInWithGoogleProvider(googleProvider);
+      // Call the existing signInWithGoogle method (no provider passed)
+      await authService.signInWithGoogle();
       onLoginSuccess?.();
       onClose();
     } catch (err) {
@@ -159,8 +151,6 @@ export default function LoginModal({
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        {/* ... your existing transition and UI code ... */}
-
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Transition.Child
             as={Fragment}
@@ -177,8 +167,6 @@ export default function LoginModal({
 
               {/* Body */}
               <div className="px-8 py-6">
-                {/* ... your existing form or reset password UI ... */}
-
                 {!showForgotPassword && !resetEmailSent && (
                   <>
                     {/* Your email/password form inputs here */}
@@ -245,6 +233,8 @@ export default function LoginModal({
                     </button>
                   </>
                 )}
+
+                {/* Add your forgot password UI and other form UI here */}
               </div>
 
               {/* Footer */}
