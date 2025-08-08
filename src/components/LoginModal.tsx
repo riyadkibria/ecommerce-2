@@ -21,20 +21,25 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setMessage(null);
     setLoading(true);
 
     try {
       if (isSignup) {
         await signupWithEmail(email, password);
+        // After signup, notify user to login manually
+        setMessage("Signup successful! Please log in now.");
+        setIsSignup(false);
       } else {
         await loginWithEmail(email, password);
+        onLoginSuccess?.();
+        onClose();
       }
-      onLoginSuccess?.();
-      onClose();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -115,6 +120,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     className={styles.input}
                   />
                   {error && <p className={styles.error}>{error}</p>}
+                  {message && <p className={styles.message}>{message}</p>}
 
                   <button
                     type="submit"
@@ -138,7 +144,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                   {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
                   <button
                     className={styles.switchButton}
-                    onClick={() => setIsSignup(!isSignup)}
+                    onClick={() => {
+                      setError(null);
+                      setMessage(null);
+                      setIsSignup(!isSignup);
+                    }}
                   >
                     {isSignup ? "Log In" : "Sign Up"}
                   </button>
