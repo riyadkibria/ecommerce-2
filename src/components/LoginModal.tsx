@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import styles from "./LoginModal.module.css";
 import {
   loginWithEmail,
@@ -23,6 +23,20 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Control message shown only once after signup
+  const [showMessageOnce, setShowMessageOnce] = useState(false);
+
+  useEffect(() => {
+    if (showMessageOnce && message) {
+      const timer = setTimeout(() => {
+        setMessage(null);
+        setShowMessageOnce(false);
+      }, 5000); // Clear message after 5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessageOnce, message]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -35,6 +49,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         setMessage(
           "Signup successful! A verification email has been sent. Please verify your email before logging in."
         );
+        setShowMessageOnce(true);
         setIsSignup(false);
       } else {
         await loginWithEmail(email, password);
