@@ -173,7 +173,6 @@ export class AuthService {
       "auth/weak-password": "Password is too weak. Please choose a stronger password",
       
       // Password reset errors
-      "auth/user-not-found": "No account found with this email address",
       "auth/invalid-action-code": "The reset link is invalid or has expired",
       "auth/expired-action-code": "The reset link has expired. Please request a new one",
     };
