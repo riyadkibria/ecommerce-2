@@ -8,7 +8,7 @@ import {
   loginWithGoogle,
 } from "@/lib/auth";
 
-interface LoginModalProps {
+export interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess?: () => void;
@@ -34,8 +34,12 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       }
       onLoginSuccess?.();
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Failed to authenticate");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to authenticate");
+      }
     } finally {
       setLoading(false);
     }
@@ -48,8 +52,12 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       await loginWithGoogle();
       onLoginSuccess?.();
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Google login failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Google login failed");
+      }
     } finally {
       setLoading(false);
     }
