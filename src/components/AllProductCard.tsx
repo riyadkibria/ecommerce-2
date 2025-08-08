@@ -49,7 +49,7 @@ export default function AllProductCard({ product }: { product: Product }) {
           {/* Price */}
           <div className="flex items-center justify-between">
             <div className="flex items-baseline space-x-1.5 sm:space-x-2">
-              <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-700">${product.Price}</span>
+              <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-700">${product.price}</span>
               <span className="text-xs sm:text-sm text-gray-400 line-through">$99.99</span>
             </div>
             <div className="px-2 py-0.5 sm:px-3 sm:py-1 bg-gray-200 text-gray-600 rounded-full text-xs sm:text-sm font-medium">
