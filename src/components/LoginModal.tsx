@@ -2,6 +2,7 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
+import styles from "./LoginModal.module.css";
 import {
   loginWithEmail,
   signupWithEmail,
@@ -65,37 +66,45 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={onClose}>
+      <Dialog as="div" className={styles.dialogWrapper} onClose={onClose}>
         <Transition.Child
           as={Fragment}
-          enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100"
-          leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0"
+          enter={styles.transitionEnter}
+          enterFrom={styles.transitionEnterFrom}
+          enterTo={styles.transitionEnterTo}
+          leave={styles.transitionLeave}
+          leaveFrom={styles.transitionLeaveFrom}
+          leaveTo={styles.transitionLeaveTo}
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className={styles.backdrop} />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
+        <div className={styles.container}>
+          <div className={styles.flexCenter}>
 
             <Transition.Child
               as={Fragment}
-              enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95"
+              enter={styles.scaleEnter}
+              enterFrom={styles.scaleEnterFrom}
+              enterTo={styles.scaleEnterTo}
+              leave={styles.scaleLeave}
+              leaveFrom={styles.scaleLeaveFrom}
+              leaveTo={styles.scaleLeaveTo}
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className={styles.dialogPanel}>
 
-                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                <Dialog.Title className={styles.dialogTitle}>
                   {isSignup ? "Sign Up" : "Log In"}
                 </Dialog.Title>
 
-                <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                <form onSubmit={handleSubmit} className={styles.form}>
                   <input
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={styles.input}
                   />
                   <input
                     type="password"
@@ -103,14 +112,14 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={styles.input}
                   />
-                  {error && <p className="text-red-600">{error}</p>}
+                  {error && <p className={styles.error}>{error}</p>}
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                    className={styles.submitButton}
                   >
                     {loading ? "Please wait..." : isSignup ? "Sign Up" : "Log In"}
                   </button>
@@ -119,16 +128,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                 <button
                   onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="mt-4 w-full border border-gray-300 rounded py-2 flex justify-center items-center gap-2 hover:bg-gray-100 disabled:opacity-50"
+                  className={styles.googleButton}
                 >
-                  <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
+                  <img src="/google-icon.svg" alt="Google" className={styles.googleIcon} />
                   Continue with Google
                 </button>
 
-                <p className="mt-4 text-center text-sm text-gray-600">
+                <p className={styles.switchText}>
                   {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
                   <button
-                    className="text-blue-600 hover:underline"
+                    className={styles.switchButton}
                     onClick={() => setIsSignup(!isSignup)}
                   >
                     {isSignup ? "Log In" : "Sign Up"}
