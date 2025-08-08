@@ -1,0 +1,205 @@
+.dialogWrapper {
+  position: relative;
+  z-index: 10;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.container {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+}
+
+.flexCenter {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+}
+
+.dialogPanel {
+  width: 100%;
+  max-width: 28rem; /* 448px */
+  transform-origin: center;
+  overflow: hidden;
+  border-radius: 1rem; /* 16px */
+  background-color: white;
+  padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+  text-align: left;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialogTitle {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 500;
+  color: #111827; /* gray-900 */
+  line-height: 1.25rem;
+}
+
+.form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #D1D5DB; /* gray-300 */
+  border-radius: 0.375rem; /* 6px */
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.input:focus {
+  box-shadow: 0 0 0 2px #3B82F6; /* blue-500 */
+  border-color: #3B82F6;
+}
+
+.error {
+  color: #DC2626; /* red-600 */
+}
+
+.submitButton {
+  width: 100%;
+  background-color: #2563EB; /* blue-600 */
+  color: white;
+  padding: 0.5rem 0;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #1D4ED8; /* blue-700 */
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.googleButton {
+  margin-top: 1rem;
+  width: 100%;
+  border: 1px solid #D1D5DB; /* gray-300 */
+  border-radius: 0.375rem;
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  background-color: white;
+  transition: background-color 0.2s ease;
+  font-weight: 600;
+}
+
+.googleButton:hover:not(:disabled) {
+  background-color: #F3F4F6; /* gray-100 */
+}
+
+.googleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.googleIcon {
+  width: 1.25rem; /* 20px */
+  height: 1.25rem;
+}
+
+.switchText {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.875rem; /* 14px */
+  color: #4B5563; /* gray-600 */
+}
+
+.switchButton {
+  color: #2563EB; /* blue-600 */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.switchButton:hover {
+  color: #1D4ED8; /* blue-700 */
+}
+
+/* Transition classes for Headless UI */
+.transitionEnter {
+  transition-property: opacity;
+  transition-duration: 300ms;
+  transition-timing-function: ease-out;
+}
+
+.transitionEnterFrom {
+  opacity: 0;
+}
+
+.transitionEnterTo {
+  opacity: 1;
+}
+
+.transitionLeave {
+  transition-property: opacity;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in;
+}
+
+.transitionLeaveFrom {
+  opacity: 1;
+}
+
+.transitionLeaveTo {
+  opacity: 0;
+}
+
+.scaleEnter {
+  transition-property: opacity, transform;
+  transition-duration: 300ms;
+  transition-timing-function: ease-out;
+}
+
+.scaleEnterFrom {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.scaleEnterTo {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scaleLeave {
+  transition-property: opacity, transform;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in;
+}
+
+.scaleLeaveFrom {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scaleLeaveTo {
+  opacity: 0;
+  transform: scale(0.95);
+}
