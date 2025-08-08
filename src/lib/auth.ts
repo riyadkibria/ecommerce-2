@@ -1,4 +1,3 @@
-// lib/auth.ts
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -7,6 +6,7 @@ import {
   GoogleAuthProvider, 
   signOut, 
   sendPasswordResetEmail,
+  sendEmailVerification,
   UserCredential,
   User
 } from "firebase/auth";
@@ -15,21 +15,47 @@ import { app } from "./firebase";
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
+/**
+ * Login with email & password.
+ * Reject if email is not verified.
+ */
 export async function loginWithEmail(email: string, password: string): Promise<UserCredential> {
-  return signInWithEmailAndPassword(auth, email, password);
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+  if (!userCredential.user.emailVerified) {
+    await signOut(auth);
+    throw new Error("Please verify your email address before logging in.");
+  }
+
+  return userCredential;
 }
 
 /**
- * Signup but immediately sign out so user won't be logged in automatically.
+ * Signup user with email & password.
+ * Send verification email.
+ * Do NOT log user in automatically.
  */
 export async function signupWithEmail(email: string, password: string): Promise<void> {
-  await createUserWithEmailAndPassword(auth, email, password);
-  // Immediately sign out after signup
-  await signOut(auth);
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+  if (userCredential.user) {
+    // Send email verification
+    await sendEmailVerification(userCredential.user);
+
+    // Sign out immediately to prevent auto-login
+    await signOut(auth);
+  }
 }
 
 export async function loginWithGoogle(): Promise<UserCredential> {
-  return signInWithPopup(auth, googleProvider);
+  const userCredential = await signInWithPopup(auth, googleProvider);
+
+  if (!userCredential.user.emailVerified) {
+    await signOut(auth);
+    throw new Error("Please verify your email address before logging in.");
+  }
+
+  return userCredential;
 }
 
 export async function logout(): Promise<void> {
