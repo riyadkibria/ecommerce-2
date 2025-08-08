@@ -5,7 +5,7 @@ import ProductCards from "@/components/ProductCards";
 
 interface Product {
   name: string;
-  Price: string;
+  price: string | number; // lowercase 'price' to match your ProductCard props
   image: string;
   sizes: string[];
   colors: string[];
@@ -15,7 +15,7 @@ interface Product {
 }
 
 interface StoryblokStory {
-  content: Product;
+  content: Omit<Product, "slug">;
   slug: string;
 }
 
@@ -27,9 +27,15 @@ export default async function ProductsPage() {
 
   const stories: StoryblokStory[] = data.stories;
 
-  // Include slug in each product
+  // Map Storyblok data to match ProductCard props
   const products: Product[] = stories.map((story) => ({
-    ...story.content,
+    name: story.content.name,
+    price: story.content.Price, // Storyblok uses 'Price', we convert to lowercase 'price'
+    image: story.content.image,
+    sizes: story.content.sizes,
+    colors: story.content.colors,
+    Category: story.content.Category,
+    description: story.content.description,
     slug: story.slug,
   }));
 
