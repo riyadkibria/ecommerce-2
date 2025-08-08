@@ -17,6 +17,7 @@ const Navbar = () => {
 
   const { user, loading, logout } = useAuth();
 
+  // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "unset";
     return () => {
@@ -56,10 +57,12 @@ const Navbar = () => {
               MyStore
             </Link>
 
+            {/* Desktop Search */}
             <div className="hidden lg:flex flex-grow max-w-2xl mx-12">
               <SearchBar />
             </div>
 
+            {/* Desktop nav */}
             <div className="hidden md:flex items-center space-x-2">
               <ul className="flex items-center space-x-2">
                 <li>
@@ -97,6 +100,7 @@ const Navbar = () => {
                   )}
                 </li>
               </ul>
+
               <div className="ml-6 pl-6 border-l border-neutral-200 flex items-center gap-4">
                 {user && (
                   <div className="hidden lg:flex items-center gap-2 text-sm text-neutral-600">
@@ -119,9 +123,11 @@ const Navbar = () => {
               >
                 <Search size={20} />
               </button>
+
               <div className="flex items-center">
                 <NavIcons onCartClick={handleCartOpen} />
               </div>
+
               <button
                 onClick={() => setMenuOpen(true)}
                 aria-label="Open menu"
@@ -132,6 +138,7 @@ const Navbar = () => {
             </div>
           </div>
 
+          {/* Mobile search bar */}
           {searchOpen && (
             <div className="md:hidden lg:hidden pb-5 pt-3 border-t border-neutral-100 animate-in slide-in-from-top-2 duration-300">
               <SearchBar />
@@ -203,6 +210,7 @@ const Navbar = () => {
         )}
       </nav>
 
+      {/* Modals */}
       <CartModal
         isOpen={cartOpen}
         onClose={() => setCartOpen(false)}
