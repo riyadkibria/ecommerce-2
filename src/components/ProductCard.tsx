@@ -6,7 +6,7 @@ import { useCart } from "@/context/cart";
 
 interface ProductProps {
   name: string;
-  price: string | number;
+  price: number;
   image: string;
   slug: string;
 }
