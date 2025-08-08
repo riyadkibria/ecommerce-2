@@ -145,70 +145,73 @@ const Navbar = () => {
             </div>
           )}
         </div>
+      </nav>
 
-        {/* Fullscreen mobile menu */}
-        {menuOpen && (
-          <div className="fixed inset-0 z-50 bg-white flex flex-col p-6 md:hidden overflow-auto">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-semibold tracking-wide">Menu</h2>
-              <button
-                onClick={() => setMenuOpen(false)}
-                aria-label="Close menu"
-                className="p-2 rounded-md hover:bg-neutral-100"
-              >
-                <X size={28} />
-              </button>
-            </div>
+      {/* Fullscreen mobile menu OUTSIDE nav for full viewport coverage */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-white flex flex-col p-6 md:hidden overflow-auto w-screen h-screen"
+          // style={{ border: "2px solid red" }} // Uncomment for debug border
+        >
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-xl font-semibold tracking-wide">Menu</h2>
+            <button
+              onClick={() => setMenuOpen(false)}
+              aria-label="Close menu"
+              className="p-2 rounded-md hover:bg-neutral-100"
+            >
+              <X size={28} />
+            </button>
+          </div>
 
-            <nav className="flex flex-col gap-6 text-base">
-              <Link
-                href="/products"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 text-neutral-700 hover:text-neutral-900"
-              >
-                <Box size={20} />
-                Products
-              </Link>
+          <nav className="flex flex-col gap-6 text-base">
+            <Link
+              href="/products"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 text-neutral-700 hover:text-neutral-900"
+            >
+              <Box size={20} />
+              Products
+            </Link>
 
+            <button
+              onClick={() => {
+                handleCartOpen();
+                setMenuOpen(false);
+              }}
+              className="flex items-center gap-3 text-neutral-700 hover:text-neutral-900"
+            >
+              <ShoppingCart size={20} />
+              Cart
+            </button>
+
+            {user ? (
               <button
                 onClick={() => {
-                  handleCartOpen();
+                  handleLogout();
                   setMenuOpen(false);
                 }}
-                className="flex items-center gap-3 text-neutral-700 hover:text-neutral-900"
+                disabled={loading}
+                className="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md font-semibold transition-colors duration-200"
               >
-                <ShoppingCart size={20} />
-                Cart
+                <LogOut size={20} />
+                {loading ? "Signing out..." : "Logout"}
               </button>
-
-              {user ? (
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setMenuOpen(false);
-                  }}
-                  disabled={loading}
-                  className="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md font-semibold transition-colors duration-200"
-                >
-                  <LogOut size={20} />
-                  {loading ? "Signing out..." : "Logout"}
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setLoginOpen(true);
-                    setMenuOpen(false);
-                  }}
-                  className="flex items-center gap-3 bg-neutral-900 hover:bg-neutral-800 text-white py-2 px-4 rounded-md font-semibold transition-colors duration-200"
-                >
-                  <LogIn size={20} />
-                  Login
-                </button>
-              )}
-            </nav>
-          </div>
-        )}
-      </nav>
+            ) : (
+              <button
+                onClick={() => {
+                  setLoginOpen(true);
+                  setMenuOpen(false);
+                }}
+                className="flex items-center gap-3 bg-neutral-900 hover:bg-neutral-800 text-white py-2 px-4 rounded-md font-semibold transition-colors duration-200"
+              >
+                <LogIn size={20} />
+                Login
+              </button>
+            )}
+          </nav>
+        </div>
+      )}
 
       {/* Modals */}
       <CartModal
