@@ -2,7 +2,7 @@ import Image from "next/image";
 
 interface Product {
   name: string;
-  Price: string;
+  price: string;
   image: string;
   sizes: string[];
   colors: string[];
