@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useCart } from "@/app/context/cart";
 
 interface ProductProps {
   name: string;
@@ -10,10 +13,16 @@ interface ProductProps {
 
 export default function ProductCard({ name, price, image, slug }: ProductProps) {
   const imageUrl = image.startsWith("//") ? "https:" + image : image;
+  const { addToCart } = useCart(); // get addToCart from context
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault(); // prevent link navigation
+    addToCart({ name, price, image: imageUrl, slug });
+  };
 
   return (
-    <Link href={`/products/${slug}`}>
-      <div className="p-4 border rounded-lg shadow-sm hover:shadow-md transition duration-200 max-w-sm w-full mx-auto cursor-pointer">
+    <div className="p-4 border rounded-lg shadow-sm hover:shadow-md transition duration-200 max-w-sm w-full mx-auto">
+      <Link href={`/products/${slug}`}>
         <div className="aspect-w-4 aspect-h-3 mb-4 overflow-hidden rounded">
           <Image
             src={imageUrl}
@@ -23,11 +32,19 @@ export default function ProductCard({ name, price, image, slug }: ProductProps) 
             className="object-cover w-full h-full"
           />
         </div>
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-800">{name}</h2>
-          <p className="text-gray-700">${price}</p>
-        </div>
+      </Link>
+
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-semibold text-gray-800">{name}</h2>
+        <p className="text-gray-700">${price}</p>
       </div>
-    </Link>
+
+      <button
+        onClick={handleAddToCart}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+      >
+        Add to Cart
+      </button>
+    </div>
   );
 }
