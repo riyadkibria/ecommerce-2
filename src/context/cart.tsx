@@ -11,6 +11,7 @@ export interface CartItem {
   image: string;
   size?: string;
   color?: string;
+  slug?: string; 
 }
 
 type AddPayload = Omit<CartItem, "quantity"> & { quantity?: number };
