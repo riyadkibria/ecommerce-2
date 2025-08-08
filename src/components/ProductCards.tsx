@@ -3,7 +3,7 @@ import Link from "next/link";
 
 interface Product {
   name: string;
-  Price: string;
+  price: string;
   image: string;
   sizes: string[];
   colors: string[];
