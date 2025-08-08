@@ -5,13 +5,13 @@ import ProductCards from "@/components/ProductCards";
 
 interface Product {
   name: string;
-  price: string | number; // lowercase 'price' to match your ProductCard props
+  Price: string;
   image: string;
   sizes: string[];
   colors: string[];
   Category: string;
   description: string;
-  slug: string;
+  slug: string; // ✅ Add slug here
 }
 
 interface StoryblokStory {
