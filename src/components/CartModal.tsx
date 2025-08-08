@@ -8,6 +8,9 @@ interface CartModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCheckout?: () => void;
+
+  onUpdateQuantity?: (id: string, quantity: number) => void;
+  onRemoveItem?: (id: string) => void;
 }
 
 const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose, onCheckout }) => {
