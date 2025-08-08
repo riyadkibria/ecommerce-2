@@ -1,3 +1,4 @@
+// lib/auth.ts
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -16,8 +17,8 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 /**
- * Login with email & password.
- * Reject if email is not verified.
+ * Login user with email & password.
+ * Throws error if email is not verified.
  */
 export async function loginWithEmail(email: string, password: string): Promise<UserCredential> {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -32,21 +33,25 @@ export async function loginWithEmail(email: string, password: string): Promise<U
 
 /**
  * Signup user with email & password.
- * Send verification email.
- * Do NOT log user in automatically.
+ * Sends verification email.
+ * Signs user out immediately to prevent auto-login.
  */
 export async function signupWithEmail(email: string, password: string): Promise<void> {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
   if (userCredential.user) {
-    // Send email verification
+    // Send verification email
     await sendEmailVerification(userCredential.user);
 
-    // Sign out immediately to prevent auto-login
+    // Sign out immediately so user is not logged in before verifying email
     await signOut(auth);
   }
 }
 
+/**
+ * Login with Google popup.
+ * Throws error if email not verified.
+ */
 export async function loginWithGoogle(): Promise<UserCredential> {
   const userCredential = await signInWithPopup(auth, googleProvider);
 
@@ -58,14 +63,35 @@ export async function loginWithGoogle(): Promise<UserCredential> {
   return userCredential;
 }
 
+/**
+ * Logout current user.
+ */
 export async function logout(): Promise<void> {
-  return signOut(auth);
+  await signOut(auth);
 }
 
+/**
+ * Send password reset email.
+ */
 export async function sendResetEmail(email: string): Promise<void> {
-  return sendPasswordResetEmail(auth, email);
+  await sendPasswordResetEmail(auth, email);
 }
 
+/**
+ * Get current logged-in user or null.
+ */
 export function getCurrentUser(): User | null {
   return auth.currentUser;
+}
+
+/**
+ * Resend email verification to current user.
+ * Throws error if no user logged in.
+ */
+export async function resendVerificationEmail(): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("No user is currently logged in.");
+  }
+  await sendEmailVerification(user);
 }
