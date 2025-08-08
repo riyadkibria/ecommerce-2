@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useCart } from "@/src/context/cart";
+import { useCart } from "src/context/cart";
 import { X, Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
 
 interface CartModalProps {
