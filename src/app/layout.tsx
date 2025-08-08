@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-// Import your components and AuthProvider
+// Import components and providers
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/context/cart"; // ✅ Import your CartProvider
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,11 +29,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* AuthProvider provides auth state and methods to the app */}
         <AuthProvider>
-          <Navbar />
-          {children}
-          <Footer />
+          <CartProvider> {/* ✅ Wrap with CartProvider */}
+            <Navbar />
+            {children}
+            <Footer />
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
