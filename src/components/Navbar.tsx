@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, ShoppingCart, LogIn, LogOut, Box } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
 import NavIcons from "@/components/NavIcons";
 import CartModal from "@/components/CartModal";
 import LoginModal from "@/components/LoginModal";
-import { useAuth } from "@/hooks/useAuth";  // Make sure this path is correct
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -139,26 +139,27 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile menu drawer/panel */}
+        {/* Fullscreen mobile menu */}
         {menuOpen && (
-          <div className="fixed inset-0 z-50 bg-white p-6 md:hidden overflow-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Menu</h2>
+          <div className="fixed inset-0 z-50 bg-white flex flex-col p-6 md:hidden overflow-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-semibold tracking-wide">Menu</h2>
               <button
                 onClick={() => setMenuOpen(false)}
                 aria-label="Close menu"
                 className="p-2 rounded-md hover:bg-neutral-100"
               >
-                <X size={24} />
+                <X size={28} />
               </button>
             </div>
 
-            <nav className="flex flex-col space-y-4 text-lg">
+            <nav className="flex flex-col gap-6 text-base">
               <Link
                 href="/products"
                 onClick={() => setMenuOpen(false)}
-                className="hover:text-neutral-900"
+                className="flex items-center gap-3 text-neutral-700 hover:text-neutral-900"
               >
+                <Box size={20} />
                 Products
               </Link>
 
@@ -167,8 +168,9 @@ const Navbar = () => {
                   handleCartOpen();
                   setMenuOpen(false);
                 }}
-                className="text-left hover:text-neutral-900"
+                className="flex items-center gap-3 text-neutral-700 hover:text-neutral-900"
               >
+                <ShoppingCart size={20} />
                 Cart
               </button>
 
@@ -179,8 +181,9 @@ const Navbar = () => {
                     setMenuOpen(false);
                   }}
                   disabled={loading}
-                  className="bg-red-600 hover:bg-red-700 text-white py-2 rounded-md font-semibold"
+                  className="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md font-semibold transition-colors duration-200"
                 >
+                  <LogOut size={20} />
                   {loading ? "Signing out..." : "Logout"}
                 </button>
               ) : (
@@ -189,8 +192,9 @@ const Navbar = () => {
                     setLoginOpen(true);
                     setMenuOpen(false);
                   }}
-                  className="bg-neutral-900 hover:bg-neutral-800 text-white py-2 rounded-md font-semibold"
+                  className="flex items-center gap-3 bg-neutral-900 hover:bg-neutral-800 text-white py-2 px-4 rounded-md font-semibold transition-colors duration-200"
                 >
+                  <LogIn size={20} />
                   Login
                 </button>
               )}
