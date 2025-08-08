@@ -8,7 +8,6 @@ import {
   signOut,
   updateProfile,
   User,
-  UserCredential,
 } from "firebase/auth";
 import { app } from "@/lib/firebase";
 import { FirebaseError } from "firebase/app";
