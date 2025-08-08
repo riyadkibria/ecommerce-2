@@ -110,6 +110,7 @@ const Navbar = () => {
               </div>
             </div>
 
+            {/* Mobile menu buttons */}
             <div className="md:hidden flex items-center space-x-3">
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
@@ -137,6 +138,65 @@ const Navbar = () => {
             </div>
           )}
         </div>
+
+        {/* Mobile menu drawer/panel */}
+        {menuOpen && (
+          <div className="fixed inset-0 z-50 bg-white p-6 md:hidden overflow-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Menu</h2>
+              <button
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+                className="p-2 rounded-md hover:bg-neutral-100"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <nav className="flex flex-col space-y-4 text-lg">
+              <Link
+                href="/products"
+                onClick={() => setMenuOpen(false)}
+                className="hover:text-neutral-900"
+              >
+                Products
+              </Link>
+
+              <button
+                onClick={() => {
+                  handleCartOpen();
+                  setMenuOpen(false);
+                }}
+                className="text-left hover:text-neutral-900"
+              >
+                Cart
+              </button>
+
+              {user ? (
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                  disabled={loading}
+                  className="bg-red-600 hover:bg-red-700 text-white py-2 rounded-md font-semibold"
+                >
+                  {loading ? "Signing out..." : "Logout"}
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setLoginOpen(true);
+                    setMenuOpen(false);
+                  }}
+                  className="bg-neutral-900 hover:bg-neutral-800 text-white py-2 rounded-md font-semibold"
+                >
+                  Login
+                </button>
+              )}
+            </nav>
+          </div>
+        )}
       </nav>
 
       <CartModal
