@@ -10,7 +10,7 @@ import {
   UserCredential,
   User
 } from "firebase/auth";
-import { app } from "./firebase";  // Your firebase config file
+import { app } from "./firebase";
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -19,8 +19,13 @@ export async function loginWithEmail(email: string, password: string): Promise<U
   return signInWithEmailAndPassword(auth, email, password);
 }
 
-export async function signupWithEmail(email: string, password: string): Promise<UserCredential> {
-  return createUserWithEmailAndPassword(auth, email, password);
+/**
+ * Signup but immediately sign out so user won't be logged in automatically.
+ */
+export async function signupWithEmail(email: string, password: string): Promise<void> {
+  await createUserWithEmailAndPassword(auth, email, password);
+  // Immediately sign out after signup
+  await signOut(auth);
 }
 
 export async function loginWithGoogle(): Promise<UserCredential> {
