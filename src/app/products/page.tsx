@@ -30,7 +30,7 @@ export default async function ProductsPage() {
   // Map Storyblok data to match ProductCard props
   const products: Product[] = stories.map((story) => ({
     name: story.content.name,
-    price: story.content.Price, // Storyblok uses 'Price', we convert to lowercase 'price'
+    price: story.content.price, // Storyblok uses 'Price', we convert to lowercase 'price'
     image: story.content.image,
     sizes: story.content.sizes,
     colors: story.content.colors,
