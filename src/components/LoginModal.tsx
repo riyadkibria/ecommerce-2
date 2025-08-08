@@ -6,6 +6,7 @@ import {
   sendPasswordResetEmail,
   createUserWithEmailAndPassword,
   signOut,
+  updateProfile,
   User,
   UserCredential,
 } from "firebase/auth";
@@ -231,7 +232,7 @@ export class AuthService {
 
       // Update display name if provided
       if (credentials.displayName && userCredential.user) {
-        await userCredential.user.updateProfile({
+        await updateProfile(userCredential.user, {
           displayName: credentials.displayName,
         });
       }
