@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useCart } from "@/app/context/cart";
+import { useCart } from "@/context/cart";
 
 interface ProductProps {
   name: string;
