@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useCart } from "@/context/cart";
 
 interface ProductProps {
+  id?: string;       // optional if you want, but required by addToCart
   name: string;
   price: number;
   image: string;
@@ -13,11 +14,13 @@ interface ProductProps {
 
 export default function ProductCard({ name, price, image, slug }: ProductProps) {
   const imageUrl = image.startsWith("//") ? "https:" + image : image;
-  const { addToCart } = useCart(); // get addToCart from context
+  const { addToCart } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); // prevent link navigation
-    addToCart({ name, price, image: imageUrl, slug });
+    e.preventDefault();
+
+    // Use slug as id here:
+    addToCart({ id: slug, name, price, image: imageUrl });
   };
 
   return (
