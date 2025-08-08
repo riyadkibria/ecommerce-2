@@ -2,6 +2,7 @@ import AllProductCard from "./AllProductCard";
 import Link from "next/link";
 
 interface Product {
+  id?: string; // optional but useful for cart identification
   name: string;
   price: string;
   image: string;
